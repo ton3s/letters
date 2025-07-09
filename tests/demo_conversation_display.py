@@ -6,7 +6,12 @@ This demonstrates how to use the include_conversation parameter.
 
 import json
 import asyncio
+import sys
+from pathlib import Path
 from datetime import datetime
+
+# Add parent directory to path to import services
+sys.path.append(str(Path(__file__).parent.parent))
 from services.agent_system import generate_letter_with_approval_workflow
 
 

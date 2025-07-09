@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 
 # Get the path to the CLI script
-cli_path = Path(__file__).parent / "cli" / "insurance_cli.py"
+cli_path = Path(__file__).parent.parent / "cli" / "insurance_cli.py"
 
 def run_cli_command(args):
     """Run a CLI command and return the output."""
@@ -156,8 +156,16 @@ def main():
     print("The following tests require the API to be running...")
     print("=" * 80)
     
-    confirm = input("\nIs the API running? (y/n): ")
-    if confirm.lower() == 'y':
+    # Check if running in interactive mode
+    if sys.stdin.isatty():
+        confirm = input("\nIs the API running? (y/n): ")
+        run_api_tests = confirm.lower() == 'y'
+    else:
+        print("\nRunning in non-interactive mode. Skipping API tests.")
+        print("To run API tests, execute this script directly in a terminal.")
+        run_api_tests = False
+    
+    if run_api_tests:
         test_direct_mode_with_conversation()
         test_direct_mode_without_conversation()
         test_json_output_with_conversation()

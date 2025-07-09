@@ -160,3 +160,6 @@ tags
 *.temp
 .temp/
 .tmp/
+
+.claude/
+.claude_*
