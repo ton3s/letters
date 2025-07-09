@@ -93,6 +93,7 @@ async def draft_letter(req: func.HttpRequest) -> func.HttpResponse:
         # Extract letter details
         letter_type = req_body.get("letter_type", "general")
         user_prompt = req_body.get("user_prompt", "")
+        include_conversation = req_body.get("include_conversation", False)
         
         if not user_prompt:
             return func.HttpResponse(
@@ -117,7 +118,8 @@ async def draft_letter(req: func.HttpRequest) -> func.HttpResponse:
         result = await generate_letter_with_approval_workflow(
             customer_info=customer_info,
             letter_type=letter_type,
-            user_prompt=user_prompt
+            user_prompt=user_prompt,
+            include_conversation=include_conversation
         )
         
         # Store letter in Cosmos DB

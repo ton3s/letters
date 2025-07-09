@@ -60,12 +60,14 @@ class InsuranceCLI:
         except requests.exceptions.RequestException as e:
             return {"error": str(e), "status": "unhealthy"}
     
-    def draft_letter(self, customer_info: Dict[str, str], letter_type: str, user_prompt: str) -> Dict[str, Any]:
+    def draft_letter(self, customer_info: Dict[str, str], letter_type: str, user_prompt: str, 
+                    include_conversation: bool = False) -> Dict[str, Any]:
         """Generate a letter using the API."""
         payload = {
             "customer_info": customer_info,
             "letter_type": letter_type,
-            "user_prompt": user_prompt
+            "user_prompt": user_prompt,
+            "include_conversation": include_conversation
         }
         
         try:
@@ -134,7 +136,72 @@ def display_health_status(health_data: Dict[str, Any]):
     console.print(table)
 
 
-def display_letter_result(result: Dict[str, Any]):
+def display_conversation(conversation: list):
+    """Display the agent conversation in a formatted way."""
+    if not conversation:
+        return
+    
+    console.print("\n[bold cyan]🤝 Agent Conversation[/bold cyan]")
+    console.print("=" * 80)
+    
+    current_round = 0
+    
+    for entry in conversation:
+        # Print round header if it's a new round
+        if entry['round'] != current_round:
+            current_round = entry['round']
+            console.print(f"\n[bold yellow]━━━ Round {current_round} ━━━[/bold yellow]")
+        
+        # Color-code agents
+        agent_colors = {
+            "LetterWriter": "blue",
+            "ComplianceReviewer": "yellow", 
+            "CustomerServiceReviewer": "green"
+        }
+        agent_color = agent_colors.get(entry['agent'], "white")
+        
+        # Print agent name
+        console.print(f"\n[bold {agent_color}]📝 {entry['agent']}[/bold {agent_color}]")
+        
+        # Extract and format the message
+        message = entry['message']
+        
+        # Check for approval keywords and split message
+        approval_keywords = {
+            "WRITER_APPROVED": ("✅", "green"),
+            "WRITER_NEEDS_IMPROVEMENT": ("🔄", "yellow"),
+            "COMPLIANCE_APPROVED": ("✅", "green"),
+            "COMPLIANCE_REJECTED": ("❌", "red"),
+            "CUSTOMER_SERVICE_APPROVED": ("✅", "green"),
+            "CUSTOMER_SERVICE_REJECTED": ("❌", "red")
+        }
+        
+        # Find and remove approval keyword from message
+        status_display = None
+        for keyword, (icon, color) in approval_keywords.items():
+            if keyword in message:
+                message = message.replace(keyword, "").strip()
+                status_display = f"[{color}]{icon} {keyword}[/{color}]"
+                break
+        
+        # Display the message content
+        if len(message) > 200:
+            # For long messages, show in a panel
+            console.print(Panel(message, border_style=agent_color))
+        else:
+            console.print(f"   {message}")
+        
+        # Display status if found
+        if status_display:
+            console.print(f"   {status_display}")
+        
+        # Display timestamp in gray
+        console.print(f"   [dim]⏰ {entry['timestamp']}[/dim]")
+    
+    console.print("\n" + "=" * 80)
+
+
+def display_letter_result(result: Dict[str, Any], show_conversation: bool = False):
     """Display letter generation result."""
     if "error" in result:
         console.print(f"[red]Error: {result['error']}[/red]")
@@ -163,6 +230,10 @@ def display_letter_result(result: Dict[str, Any]):
     letter_content = result.get("letter_content", "No letter content found")
     console.print("\n[bold]Generated Letter:[/bold]")
     console.print(Panel(letter_content, title="Letter Content", border_style="blue"))
+    
+    # Display conversation if requested and available
+    if show_conversation and "agent_conversation" in result:
+        display_conversation(result["agent_conversation"])
 
 
 def interactive_mode(cli: InsuranceCLI):
@@ -224,6 +295,9 @@ def interactive_mode(cli: InsuranceCLI):
             # Get user prompt
             user_prompt = Prompt.ask("\n[bold]Describe the letter requirements[/bold]")
             
+            # Ask if user wants to see conversation
+            show_conversation = Confirm.ask("\n[bold]Show agent conversation?[/bold]", default=False)
+            
             # Generate letter
             with Progress(
                 SpinnerColumn(),
@@ -231,9 +305,9 @@ def interactive_mode(cli: InsuranceCLI):
                 transient=True,
             ) as progress:
                 progress.add_task(description="Generating letter with multi-agent review...", total=None)
-                result = cli.draft_letter(customer_info, letter_type, user_prompt)
+                result = cli.draft_letter(customer_info, letter_type, user_prompt, show_conversation)
             
-            display_letter_result(result)
+            display_letter_result(result, show_conversation)
             
             # Offer to save the letter
             if "letter_content" in result and Confirm.ask("\nSave letter to file?"):
@@ -330,6 +404,10 @@ Examples:
   python insurance_cli.py --customer-name "John Doe" --policy-number "POL-123456" \\
       --letter-type "welcome" --prompt "Welcome new customer to auto insurance"
 
+  # Letter generation with agent conversation display
+  python insurance_cli.py --customer-name "Jane Smith" --policy-number "POL-789012" \\
+      --letter-type "claim_denial" --prompt "Deny claim with empathy" --show-conversation
+
   # Letter type suggestion
   python insurance_cli.py --suggest --prompt "Customer claim was denied due to late filing"
 
@@ -377,6 +455,8 @@ Examples:
     parser.add_argument("--output", "-o", help="Save output to file")
     parser.add_argument("--json", action="store_true",
                        help="Output raw JSON response")
+    parser.add_argument("--show-conversation", action="store_true",
+                       help="Show the agent conversation during letter generation")
     
     args = parser.parse_args()
     
@@ -441,12 +521,12 @@ Examples:
         }
         
         with console.status("Generating letter..."):
-            result = cli.draft_letter(customer_info, args.letter_type, args.prompt)
+            result = cli.draft_letter(customer_info, args.letter_type, args.prompt, args.show_conversation)
         
         if args.json:
             console.print_json(data=result)
         else:
-            display_letter_result(result)
+            display_letter_result(result, args.show_conversation)
         
         # Save output if requested
         if args.output and "letter_content" in result:

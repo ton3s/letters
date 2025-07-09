@@ -190,9 +190,17 @@ def extract_final_letter(history: List[ChatMessageContent]) -> str:
 async def generate_letter_with_approval_workflow(
     customer_info: Dict[str, str],
     letter_type: str,
-    user_prompt: str
+    user_prompt: str,
+    include_conversation: bool = False
 ) -> Dict[str, Any]:
-    """Generate insurance letter using iterative approval workflow."""
+    """Generate insurance letter using iterative approval workflow.
+    
+    Args:
+        customer_info: Customer information dict
+        letter_type: Type of letter to generate
+        user_prompt: User's requirements for the letter
+        include_conversation: If True, includes the full agent conversation in the response
+    """
     kernel = get_kernel_with_azure_openai()
     agents = get_insurance_agents(kernel)
     
@@ -243,16 +251,36 @@ async def generate_letter_with_approval_workflow(
     
     # Run the group chat and collect messages
     history = []
+    conversation_log = []  # Store formatted conversation for display
+    
     async for message in chat.invoke():
         if hasattr(message, 'content'):
             author = getattr(message, 'name', 'Unknown')
-            logger.info(f"[Round {termination_strategy.current_round}] {author}: {str(message.content)[:100]}...")
+            content = str(message.content)
+            logger.info(f"[Round {termination_strategy.current_round}] {author}: {content[:100]}...")
             history.append(message)
+            
+            # Format conversation entry
+            conversation_entry = {
+                "round": termination_strategy.current_round,
+                "agent": author,
+                "message": content,
+                "timestamp": datetime.now().isoformat()
+            }
+            conversation_log.append(conversation_entry)
     
     # Get final results from chat history if empty
     if not history:
         async for msg in chat.get_chat_messages():
             history.append(msg)
+            if hasattr(msg, 'content') and hasattr(msg, 'name'):
+                conversation_entry = {
+                    "round": termination_strategy.current_round,
+                    "agent": getattr(msg, 'name', 'Unknown'),
+                    "message": str(msg.content),
+                    "timestamp": datetime.now().isoformat()
+                }
+                conversation_log.append(conversation_entry)
     
     # Analyze final approval status
     approval_status = analyze_final_approvals(history)
@@ -272,7 +300,13 @@ async def generate_letter_with_approval_workflow(
         quality_assurance="Multi-round approval process completed"
     )
     
-    return result.to_dict()
+    result_dict = result.to_dict()
+    
+    # Add conversation if requested
+    if include_conversation:
+        result_dict["agent_conversation"] = conversation_log
+    
+    return result_dict
 
 
 async def suggest_letter_type(user_prompt: str) -> Dict[str, Any]:
