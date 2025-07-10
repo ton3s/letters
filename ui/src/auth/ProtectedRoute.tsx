@@ -1,4 +1,5 @@
 import React from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useIsAuthenticated, useMsal } from '@azure/msal-react';
 import { InteractionStatus } from '@azure/msal-browser';
 import { LoadingSpinner } from '../components/Common/LoadingSpinner';
@@ -13,6 +14,7 @@ interface ProtectedRouteProps {
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const isAuthenticated = useIsAuthenticated();
   const { inProgress } = useMsal();
+  const location = useLocation();
 
   // Show loading spinner while authentication is in progress
   if (inProgress !== InteractionStatus.None) {
@@ -28,14 +30,6 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <>{children}</>;
   }
 
-  // If not authenticated, show a message to sign in
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <div className="text-center">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-4">Sign In Required</h2>
-        <p className="text-gray-600 mb-6">Please sign in to access this page.</p>
-        <p className="text-sm text-gray-500">Use the Sign In button in the top right corner.</p>
-      </div>
-    </div>
-  );
+  // If not authenticated, redirect to login page
+  return <Navigate to="/login" state={{ from: location }} replace />;
 };

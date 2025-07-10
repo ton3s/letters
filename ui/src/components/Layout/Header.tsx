@@ -6,7 +6,6 @@ import {
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../auth/AuthProvider';
 import { UserProfile } from '../auth/UserProfile';
-import { LoginButton } from '../auth/LoginButton';
 
 interface HeaderProps {
   onThemeToggle: () => void;
@@ -43,12 +42,8 @@ export const Header: React.FC<HeaderProps> = ({ onThemeToggle, isDarkMode }) => 
               )}
             </button>
 
-            {/* User Profile or Login Button */}
-            {isAuthenticated ? (
-              <UserProfile />
-            ) : (
-              <LoginButton variant="primary" />
-            )}
+            {/* User Profile (only shown when authenticated) */}
+            {isAuthenticated && <UserProfile />}
           </div>
         </div>
       </div>

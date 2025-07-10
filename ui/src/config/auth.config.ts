@@ -5,7 +5,7 @@
 
 // Set to true to require authentication for all routes
 // Set to false to make authentication optional
-export const REQUIRE_AUTH = process.env.REACT_APP_REQUIRE_AUTH === 'true' || false;
+export const REQUIRE_AUTH = process.env.REACT_APP_REQUIRE_AUTH === 'false' ? false : true;
 
 // You can also configure per-route authentication requirements
 export const ROUTE_AUTH_CONFIG = {
