@@ -14,8 +14,8 @@ export const Layout: React.FC<LayoutProps> = ({ onThemeToggle, isDarkMode }) => 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   
-  // Don't show footer on generate and history pages
-  const showFooter = !['/generate', '/history', '/letter/view'].includes(location.pathname);
+  // Don't show footer on generate, history, letter view, and settings pages
+  const showFooter = !['/generate', '/history', '/letter/view', '/settings'].includes(location.pathname);
 
   return (
     <div className="h-screen flex overflow-hidden bg-gray-100 dark:bg-gray-900">

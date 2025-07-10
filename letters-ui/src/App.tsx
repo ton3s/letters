@@ -5,6 +5,7 @@ import { Layout } from './components/Layout';
 import { GenerateLetter } from './pages/GenerateLetter';
 import { LetterHistory } from './pages/LetterHistory';
 import { ViewLetter } from './pages/ViewLetter';
+import { CompanySettings } from './pages/CompanySettings';
 
 // Main App Content
 const AppContent: React.FC = () => {
@@ -18,6 +19,7 @@ const AppContent: React.FC = () => {
           <Route path="generate" element={<GenerateLetter />} />
           <Route path="history" element={<LetterHistory />} />
           <Route path="letter/view" element={<ViewLetter />} />
+          <Route path="settings" element={<CompanySettings />} />
         </Route>
       </Routes>
     </Router>

@@ -5,6 +5,7 @@ import {
   ClipboardDocumentListIcon,
   XMarkIcon,
   PlusIcon,
+  Cog6ToothIcon,
 } from '@heroicons/react/24/outline';
 
 interface SidebarProps {
@@ -22,6 +23,7 @@ interface NavItem {
 const navigation: NavItem[] = [
   { name: 'Generate Letter', href: '/generate', icon: DocumentTextIcon },
   { name: 'Letter History', href: '/history', icon: ClipboardDocumentListIcon },
+  { name: 'Company Settings', href: '/settings', icon: Cog6ToothIcon },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {

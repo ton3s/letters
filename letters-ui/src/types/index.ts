@@ -93,3 +93,24 @@ export interface HealthStatus {
 export interface ThemeState {
   mode: 'light' | 'dark';
 }
+
+// Placeholder Types
+export type PlaceholderType = 'text' | 'date' | 'currency' | 'email' | 'phone' | 'address' | 'name';
+
+export interface Placeholder {
+  id: string;
+  pattern: string;
+  value?: string;
+  required: boolean;
+  type: PlaceholderType;
+  validation?: RegExp;
+  displayName: string;
+  startIndex: number;
+  endIndex: number;
+}
+
+export interface PlaceholderDetectionResult {
+  content: string;
+  placeholders: Placeholder[];
+  hasUnfilledRequired: boolean;
+}

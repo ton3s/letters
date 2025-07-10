@@ -53,6 +53,31 @@ export class LetterHistoryService {
     return history.find(letter => letter.id === id);
   }
 
+  // Update an existing letter
+  static update(id: string, updates: Partial<StoredLetter>): boolean {
+    try {
+      const history = this.getAll();
+      const index = history.findIndex(letter => letter.id === id);
+      
+      if (index === -1) {
+        return false; // Letter not found
+      }
+      
+      // Update the letter with new data
+      history[index] = {
+        ...history[index],
+        ...updates,
+        savedAt: new Date().toISOString(), // Update the save timestamp
+      };
+      
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+      return true;
+    } catch (error) {
+      console.error('Error updating letter:', error);
+      return false;
+    }
+  }
+
   // Delete a letter by ID
   static delete(id: string): boolean {
     try {
