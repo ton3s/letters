@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.4.0] - 2025-07-10
+
+### Added
+- Comprehensive Architecture Guide documenting system design
+- In-depth Agent System Guide explaining multi-agent collaboration
+- Code Improvements document with prioritized recommendations
+- Detailed code review findings and best practices
+
+### Documentation
+- Created ARCHITECTURE.md with complete system overview
+- Created AGENT_SYSTEM_GUIDE.md focusing on agent implementation
+- Created CODE_IMPROVEMENTS.md with actionable improvements
+- Updated README with links to new documentation
+
 ## [2.3.0] - 2025-07-10
 
 ### Changed

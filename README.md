@@ -359,8 +359,11 @@ func azure functionapp publish <function-app-name>
 
 ## Documentation
 
+- [Architecture Guide](docs/ARCHITECTURE.md) - Complete system architecture overview
+- [Agent System Guide](docs/AGENT_SYSTEM_GUIDE.md) - In-depth guide to the multi-agent system
 - [Authentication Setup Guide](docs/AUTHENTICATION.md) - Configure Microsoft Entra ID for SSO
 - [Deployment Guide](docs/DEPLOYMENT.md) - Deploy to Azure with API Management
+- [Code Improvements](docs/CODE_IMPROVEMENTS.md) - Recommended improvements and best practices
 - [API Tests Documentation](api/tests/README.md) - Running and writing tests
 
 ## Azure Deployment
