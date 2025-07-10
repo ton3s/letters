@@ -1,3 +1,5 @@
+import { msalInstance } from '../auth/authConfig';
+
 export interface CompanyProfile {
   companyName: string;
   companyAddress: string;
@@ -16,13 +18,24 @@ export interface CompanyProfile {
   disclaimerText?: string;
 }
 
-const STORAGE_KEY = 'company_profile';
+const STORAGE_KEY_PREFIX = 'company_profile';
 
 export class CompanyProfileService {
-  // Get the company profile from localStorage
+  // Get the current user's ID for storage key
+  private static getUserStorageKey(): string {
+    const accounts = msalInstance.getAllAccounts();
+    if (accounts.length > 0) {
+      const userId = accounts[0].localAccountId || accounts[0].homeAccountId || 'default';
+      return `${STORAGE_KEY_PREFIX}_${userId}`;
+    }
+    return `${STORAGE_KEY_PREFIX}_default`;
+  }
+
+  // Get the company profile from localStorage for the current user
   static get(): CompanyProfile | null {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const storageKey = this.getUserStorageKey();
+      const stored = localStorage.getItem(storageKey);
       return stored ? JSON.parse(stored) : null;
     } catch (error) {
       console.error('Error reading company profile:', error);
@@ -30,10 +43,11 @@ export class CompanyProfileService {
     }
   }
 
-  // Save the company profile to localStorage
+  // Save the company profile to localStorage for the current user
   static save(profile: CompanyProfile): void {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+      const storageKey = this.getUserStorageKey();
+      localStorage.setItem(storageKey, JSON.stringify(profile));
     } catch (error) {
       console.error('Error saving company profile:', error);
     }

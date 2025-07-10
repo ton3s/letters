@@ -27,11 +27,11 @@ export const msalConfig: Configuration = {
     authority: `https://login.microsoftonline.com/${tenantId}`,
     redirectUri: redirectUri,
     postLogoutRedirectUri: redirectUri,
-    navigateToLoginRequestUrl: true,
+    navigateToLoginRequestUrl: false, // Changed to false to prevent navigation issues
   },
   cache: {
     cacheLocation: 'sessionStorage', // Use sessionStorage for better security
-    storeAuthStateInCookie: false, // Set to true if you have issues on IE11 or Edge
+    storeAuthStateInCookie: true, // Changed to true to help with popup handling
   },
   system: {
     loggerOptions: {

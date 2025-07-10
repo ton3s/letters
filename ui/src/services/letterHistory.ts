@@ -1,4 +1,5 @@
 import { LetterResponse } from '../types';
+import { msalInstance } from '../auth/authConfig';
 
 export interface StoredLetter extends LetterResponse {
   id: string;
@@ -7,14 +8,25 @@ export interface StoredLetter extends LetterResponse {
   letterType: string;
 }
 
-const STORAGE_KEY = 'letter_history';
+const STORAGE_KEY_PREFIX = 'letter_history';
 const MAX_HISTORY_SIZE = 50;
 
 export class LetterHistoryService {
-  // Get all letters from localStorage
+  // Get the current user's ID for storage key
+  private static getUserStorageKey(): string {
+    const accounts = msalInstance.getAllAccounts();
+    if (accounts.length > 0) {
+      const userId = accounts[0].localAccountId || accounts[0].homeAccountId || 'default';
+      return `${STORAGE_KEY_PREFIX}_${userId}`;
+    }
+    return `${STORAGE_KEY_PREFIX}_default`;
+  }
+
+  // Get all letters from localStorage for the current user
   static getAll(): StoredLetter[] {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const storageKey = this.getUserStorageKey();
+      const stored = localStorage.getItem(storageKey);
       return stored ? JSON.parse(stored) : [];
     } catch (error) {
       console.error('Error reading letter history:', error);
@@ -43,7 +55,8 @@ export class LetterHistoryService {
         history.splice(MAX_HISTORY_SIZE);
       }
       
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+      const storageKey = this.getUserStorageKey();
+      localStorage.setItem(storageKey, JSON.stringify(history));
     } catch (error) {
       console.error('Error saving letter to history:', error);
     }
@@ -68,7 +81,8 @@ export class LetterHistoryService {
           savedAt: new Date().toISOString(),
         };
         
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+        const storageKey = this.getUserStorageKey();
+        localStorage.setItem(storageKey, JSON.stringify(history));
         return true;
       }
       
@@ -86,7 +100,8 @@ export class LetterHistoryService {
       const filtered = history.filter(letter => letter.id !== id);
       
       if (filtered.length !== history.length) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+        const storageKey = this.getUserStorageKey();
+        localStorage.setItem(storageKey, JSON.stringify(filtered));
         return true;
       }
       
@@ -97,8 +112,9 @@ export class LetterHistoryService {
     }
   }
 
-  // Clear all history
+  // Clear all history for the current user
   static clearAll(): void {
-    localStorage.removeItem(STORAGE_KEY);
+    const storageKey = this.getUserStorageKey();
+    localStorage.removeItem(storageKey);
   }
 }

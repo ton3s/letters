@@ -50,23 +50,39 @@ const AuthProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
     }
   }, [accounts]);
 
+  // Handle redirect response
+  useEffect(() => {
+    const handleRedirectPromise = async () => {
+      try {
+        const response = await instance.handleRedirectPromise();
+        if (response && response.account) {
+          instance.setActiveAccount(response.account);
+          setUser(response.account);
+        }
+      } catch (error) {
+        console.error('Error handling redirect:', error);
+      }
+    };
+
+    handleRedirectPromise();
+  }, [instance]);
+
   /**
-   * Handles user login using popup
+   * Handles user login using redirect
    */
   const login = async () => {
     setIsLoading(true);
     setError(null);
     
     try {
-      const result = await instance.loginPopup(loginRequest);
-      if (result.account) {
-        instance.setActiveAccount(result.account);
-        setUser(result.account);
-      }
+      // Use redirect instead of popup to avoid hash issues
+      await instance.loginRedirect({
+        ...loginRequest,
+        redirectStartPage: window.location.href
+      });
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Login failed'));
       console.error('Login error:', err);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -79,15 +95,12 @@ const AuthProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
     setError(null);
     
     try {
-      await instance.logoutPopup({
-        postLogoutRedirectUri: '/',
-        mainWindowRedirectUri: '/'
+      await instance.logoutRedirect({
+        postLogoutRedirectUri: '/'
       });
-      setUser(null);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Logout failed'));
       console.error('Logout error:', err);
-    } finally {
       setIsLoading(false);
     }
   };
