@@ -135,10 +135,10 @@ export const CompanySettings: React.FC = () => {
           </div>
         </div>
 
-        {/* Default Agent Information */}
+        {/* Agent Information */}
         <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Default Agent Information
+            Agent Information
           </h2>
           
           <div className="space-y-6">
@@ -146,7 +146,7 @@ export const CompanySettings: React.FC = () => {
               {/* Agent Name */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Default Agent Name
+                  Agent Name
                 </label>
                 <input
                   type="text"
@@ -159,7 +159,7 @@ export const CompanySettings: React.FC = () => {
               {/* Agent Title */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Default Agent Title
+                  Agent Title
                 </label>
                 <input
                   type="text"
@@ -172,7 +172,7 @@ export const CompanySettings: React.FC = () => {
               {/* Agent Email */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Default Agent Email
+                  Agent Email
                 </label>
                 <input
                   type="email"
@@ -185,7 +185,7 @@ export const CompanySettings: React.FC = () => {
               {/* Agent Phone */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Default Agent Phone
+                  Agent Phone
                 </label>
                 <input
                   type="tel"
@@ -198,42 +198,6 @@ export const CompanySettings: React.FC = () => {
           </div>
         </div>
 
-        {/* Claims Manager Information */}
-        <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Claims Manager Information
-          </h2>
-          
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Claims Manager Name */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Claims Manager Name
-                </label>
-                <input
-                  type="text"
-                  value={profile.claimsManagerName || ''}
-                  onChange={(e) => handleChange('claimsManagerName', e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                />
-              </div>
-
-              {/* Claims Manager Title */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Claims Manager Title
-                </label>
-                <input
-                  type="text"
-                  value={profile.claimsManagerTitle || ''}
-                  onChange={(e) => handleChange('claimsManagerTitle', e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Actions */}
         <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">

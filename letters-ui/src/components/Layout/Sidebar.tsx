@@ -47,12 +47,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         `}
       >
         {/* Mobile close button */}
-        <div className="lg:hidden absolute top-0 right-0 -mr-12 pt-2">
+        <div className="lg:hidden absolute top-2 right-2">
           <button
             onClick={onClose}
-            className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+            className="flex items-center justify-center h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
           >
-            <XMarkIcon className="h-6 w-6 text-white" />
+            <XMarkIcon className="h-6 w-6" />
           </button>
         </div>
 

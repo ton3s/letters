@@ -62,6 +62,46 @@ export const LetterHistory: React.FC = () => {
     ).join(' ');
   };
 
+  const getLetterSummary = (letter: StoredLetter): string => {
+    // Extract first meaningful line from letter content for summary
+    const content = letter.letter_content || '';
+    const lines = content.split('\n').filter(line => line.trim());
+    
+    // Skip common header lines and find the first paragraph
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      // Skip headers, dates, addresses, greetings
+      if (
+        !trimmedLine.includes('[') &&
+        !trimmedLine.startsWith('Date:') &&
+        !trimmedLine.startsWith('Dear') &&
+        !trimmedLine.startsWith('Policy Number:') &&
+        !trimmedLine.startsWith('Claim Number:') &&
+        !trimmedLine.includes('@') &&
+        trimmedLine.length > 20
+      ) {
+        // Return first 80 characters of the first meaningful paragraph
+        return trimmedLine.length > 80 
+          ? trimmedLine.substring(0, 77) + '...' 
+          : trimmedLine;
+      }
+    }
+    
+    // Fallback based on letter type
+    const typeDescriptions: Record<string, string> = {
+      'claim_denial': 'Claim denial notification',
+      'claim_approval': 'Claim approval notification',
+      'policy_renewal': 'Policy renewal reminder',
+      'coverage_change': 'Coverage modification notice',
+      'premium_increase': 'Premium adjustment notification',
+      'cancellation': 'Policy cancellation notice',
+      'welcome': 'Welcome letter for new policy',
+      'general': 'General correspondence'
+    };
+    
+    return typeDescriptions[letter.letterType] || 'Insurance correspondence';
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
@@ -94,7 +134,10 @@ export const LetterHistory: React.FC = () => {
             <thead className="bg-gray-50 dark:bg-gray-900">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Letter Details
+                  Customer Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Letter Summary
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Type
@@ -114,13 +157,13 @@ export const LetterHistory: React.FC = () => {
               {letters.map((letter) => (
                 <tr key={letter.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {letter.customerName}
-                      </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {letter.id}
-                      </div>
+                    <div className="text-sm font-medium text-gray-900 dark:text-white">
+                      {letter.customerName}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-sm text-gray-700 dark:text-gray-300 max-w-md">
+                      {getLetterSummary(letter)}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">

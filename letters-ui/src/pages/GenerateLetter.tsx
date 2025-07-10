@@ -68,7 +68,7 @@ export const GenerateLetter: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-2xl mx-auto space-y-6">
       {/* Page Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Generate Letter</h1>
@@ -77,9 +77,8 @@ export const GenerateLetter: React.FC = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 max-w-2xl mx-auto">
-        {/* Form Section */}
-        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+      {/* Form Section */}
+      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Letter Type */}
             <div>
@@ -230,7 +229,6 @@ export const GenerateLetter: React.FC = () => {
           {/* Loading Modal */}
           <LoadingModal isOpen={isLoading} message="Generating letter..." />
 
-        </div>
       </div>
     </div>
   );
