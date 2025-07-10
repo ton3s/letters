@@ -8,9 +8,9 @@ interface LoadingModalProps {
 
 const progressMessages = [
   { delay: 0, message: 'Initializing letter generation...' },
-  { delay: 2000, message: 'LetterWriter agent is drafting your letter...' },
-  { delay: 8000, message: 'ComplianceReviewer agent is reviewing for compliance...' },
-  { delay: 14000, message: 'CustomerServiceReviewer agent is checking customer experience...' },
+  { delay: 2000, message: 'Letter Writer agent is drafting your letter...' },
+  { delay: 8000, message: 'Compliance Reviewer agent is reviewing for compliance...' },
+  { delay: 14000, message: 'Customer Service Reviewer agent is checking customer experience...' },
   { delay: 20000, message: 'Finalizing your letter...' },
 ];
 
