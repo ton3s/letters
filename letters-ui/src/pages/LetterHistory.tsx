@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ClockIcon, DocumentTextIcon, TrashIcon, EyeIcon } from '@heroicons/react/24/outline';
+import { ClockIcon, DocumentTextIcon, TrashIcon, EyeIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
 import { LetterHistoryService, StoredLetter } from '../services/letterHistory';
 import { ConfirmDialog } from '../components/Common';
+import { AgentConversationModal } from '../components/Letters';
 
 export const LetterHistory: React.FC = () => {
   const navigate = useNavigate();
@@ -10,6 +11,10 @@ export const LetterHistory: React.FC = () => {
   const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; letterId: string | null }>({
     isOpen: false,
     letterId: null,
+  });
+  const [conversationModal, setConversationModal] = useState<{ isOpen: boolean; letter: StoredLetter | null }>({
+    isOpen: false,
+    letter: null,
   });
 
   useEffect(() => {
@@ -27,6 +32,10 @@ export const LetterHistory: React.FC = () => {
 
   const handleDelete = (letterId: string) => {
     setDeleteConfirm({ isOpen: true, letterId });
+  };
+  
+  const handleViewConversation = (letter: StoredLetter) => {
+    setConversationModal({ isOpen: true, letter });
   };
 
   const confirmDelete = () => {
@@ -134,20 +143,31 @@ export const LetterHistory: React.FC = () => {
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      onClick={() => handleView(letter)}
-                      className="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 mr-4"
-                    >
-                      <EyeIcon className="h-5 w-5 inline" />
-                      <span className="ml-1">View</span>
-                    </button>
-                    <button
-                      onClick={() => handleDelete(letter.id)}
-                      className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                    >
-                      <TrashIcon className="h-5 w-5 inline" />
-                      <span className="ml-1">Delete</span>
-                    </button>
+                    <div className="flex items-center space-x-3">
+                      <button
+                        onClick={() => handleView(letter)}
+                        className="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300"
+                        title="View Letter"
+                      >
+                        <EyeIcon className="h-5 w-5" />
+                      </button>
+                      {letter.agent_conversation && letter.agent_conversation.length > 0 && (
+                        <button
+                          onClick={() => handleViewConversation(letter)}
+                          className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                          title="View Agent Conversation"
+                        >
+                          <ChatBubbleLeftRightIcon className="h-5 w-5" />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleDelete(letter.id)}
+                        className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                        title="Delete Letter"
+                      >
+                        <TrashIcon className="h-5 w-5" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -166,6 +186,15 @@ export const LetterHistory: React.FC = () => {
         onCancel={() => setDeleteConfirm({ isOpen: false, letterId: null })}
         isDangerous
       />
+      
+      {conversationModal.letter && (
+        <AgentConversationModal
+          isOpen={conversationModal.isOpen}
+          onClose={() => setConversationModal({ isOpen: false, letter: null })}
+          conversation={conversationModal.letter.agent_conversation || []}
+          totalRounds={conversationModal.letter.total_rounds}
+        />
+      )}
     </div>
   );
 };

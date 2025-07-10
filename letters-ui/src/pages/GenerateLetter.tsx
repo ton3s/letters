@@ -36,7 +36,13 @@ export const GenerateLetter: React.FC = () => {
   const selectedLetterType = watch('letter_type');
 
   const onSubmit = async (data: LetterRequest) => {
-    const response = await executeGenerateLetter(data);
+    // Always include conversation for audit purposes
+    const requestData = {
+      ...data,
+      include_conversation: true
+    };
+    
+    const response = await executeGenerateLetter(requestData);
     if (response) {
       // Save to history
       LetterHistoryService.save(
@@ -177,18 +183,6 @@ export const GenerateLetter: React.FC = () => {
                   {errors.user_prompt.message}
                 </p>
               )}
-            </div>
-
-            {/* Options */}
-            <div className="flex items-center">
-              <input
-                {...register('include_conversation')}
-                type="checkbox"
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-              />
-              <label className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                Show agent conversation
-              </label>
             </div>
 
             {/* Submit Button */}
