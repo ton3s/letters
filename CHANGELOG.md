@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.5.0] - 2025-07-10
+
+### Added
+- Comprehensive CLAUDE.md file for session context recovery
+- Local Development Guide (LOCAL_DEVELOPMENT.md) with detailed setup instructions
+
+### Documentation
+- Created CLAUDE.md capturing all project context, patterns, and decisions
+- Added troubleshooting guide and session recovery checklist
+- Documented all key implementation details and common issues
+
 ## [2.4.0] - 2025-07-10
 
 ### Added
