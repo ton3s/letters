@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { AuthProvider } from './auth/AuthProvider';
-import { ProtectedRoute } from './auth/ProtectedRoute';
+import { OptionalProtectedRoute } from './auth/OptionalProtectedRoute';
 import { Layout } from './components/Layout';
 import { GenerateLetter } from './pages/GenerateLetter';
 import { LetterHistory } from './pages/LetterHistory';
@@ -19,24 +19,24 @@ const AppContent: React.FC = () => {
         <Route path="/" element={<Layout onThemeToggle={toggleTheme} isDarkMode={isDarkMode} />}>
           <Route index element={<Navigate to="/generate" replace />} />
           <Route path="generate" element={
-            <ProtectedRoute>
+            <OptionalProtectedRoute>
               <GenerateLetter />
-            </ProtectedRoute>
+            </OptionalProtectedRoute>
           } />
           <Route path="history" element={
-            <ProtectedRoute>
+            <OptionalProtectedRoute>
               <LetterHistory />
-            </ProtectedRoute>
+            </OptionalProtectedRoute>
           } />
           <Route path="letter/view" element={
-            <ProtectedRoute>
+            <OptionalProtectedRoute>
               <ViewLetter />
-            </ProtectedRoute>
+            </OptionalProtectedRoute>
           } />
           <Route path="settings" element={
-            <ProtectedRoute>
+            <OptionalProtectedRoute>
               <CompanySettings />
-            </ProtectedRoute>
+            </OptionalProtectedRoute>
           } />
         </Route>
       </Routes>

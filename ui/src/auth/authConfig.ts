@@ -95,7 +95,9 @@ if (accounts.length > 0) {
 msalInstance.addEventCallback((event) => {
   if (event.eventType === 'msal:loginSuccess' && event.payload && 'account' in event.payload) {
     const account = event.payload.account;
-    msalInstance.setActiveAccount(account);
+    if (account) {
+      msalInstance.setActiveAccount(account);
+    }
   }
 });
 

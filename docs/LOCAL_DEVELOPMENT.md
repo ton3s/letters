@@ -26,33 +26,36 @@ This guide provides detailed instructions for setting up and running the Insuran
 ### Required Software
 
 1. **Python 3.8 or higher**
+
    ```bash
    # Check Python version
    python --version  # or python3 --version
-   
+
    # Install Python from https://www.python.org/downloads/
    ```
 
 2. **Node.js 18+ and npm**
+
    ```bash
    # Check Node.js version
    node --version
-   
+
    # Check npm version
    npm --version
-   
+
    # Install from https://nodejs.org/
    ```
 
 3. **Azure Functions Core Tools v4**
+
    ```bash
    # macOS
    brew tap azure/functions
    brew install azure-functions-core-tools@4
-   
+
    # Windows (using Chocolatey)
    choco install azure-functions-core-tools
-   
+
    # Ubuntu/Debian
    curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
    sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
@@ -62,10 +65,11 @@ This guide provides detailed instructions for setting up and running the Insuran
    ```
 
 4. **Git**
+
    ```bash
    # Check Git version
    git --version
-   
+
    # Install from https://git-scm.com/downloads
    ```
 
@@ -103,6 +107,7 @@ chmod +x setup.sh
 ```
 
 The setup script will:
+
 - Check Python version
 - Create a virtual environment
 - Install Python dependencies
@@ -138,6 +143,7 @@ cd ..
 ### 1. Azure OpenAI Setup
 
 1. **Create Azure OpenAI Resource**
+
    ```bash
    # Using Azure CLI
    az cognitiveservices account create \
@@ -150,6 +156,7 @@ cd ..
    ```
 
 2. **Deploy GPT-4 Model**
+
    - Go to Azure Portal → Your OpenAI resource
    - Click "Model deployments" → "Create"
    - Select "gpt-4" model
@@ -165,17 +172,23 @@ cd ..
 Follow the detailed guide in [AUTHENTICATION.md](AUTHENTICATION.md). Key steps:
 
 1. **Create App Registration**
+
    - Name: "Insurance Letter Generator (Local)"
    - Redirect URI: `http://localhost:3000`
    - Note the Application (client) ID and Directory (tenant) ID
 
 2. **Configure API Permissions**
+
    - Add `User.Read` permission
    - Grant admin consent
 
 3. **Expose an API**
    - Set Application ID URI: `api://[your-client-id]`
    - Add scope: `access_as_user`
+   - Admin consent display name: Access Insurance Letter API
+   - Admin consent description: Allows the application to access the Insurance Letter Generator API on behalf of the signed-in user. This includes generating letters, viewing letter history, and managing company settings.
+   - User consent display name: Access Insurance Letter services
+   - User consent description: Allows the app to generate insurance letters, view your letter history, and manage company settings on your behalf.
 
 ### 3. Configure Environment Variables
 
@@ -187,24 +200,25 @@ cp api/local.settings.json.example api/local.settings.json
 ```
 
 Edit `api/local.settings.json`:
+
 ```json
 {
-  "IsEncrypted": false,
-  "Values": {
-    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "FUNCTIONS_WORKER_RUNTIME": "python",
-    "AZURE_AD_TENANT_ID": "your-tenant-id",
-    "AZURE_AD_CLIENT_ID": "your-client-id",
-    "AZURE_OPENAI_DEPLOYMENT_NAME": "gpt-4",
-    "AZURE_OPENAI_ENDPOINT": "https://your-resource.openai.azure.com/",
-    "AZURE_OPENAI_API_KEY": "your-openai-key",
-    "AZURE_OPENAI_API_VERSION": "2024-02-15-preview",
-    "COSMOS_ENDPOINT": "",  // Optional for local dev
-    "COSMOS_KEY": ""        // Optional for local dev
-  },
-  "Host": {
-    "CORS": "http://localhost:3000"
-  }
+	"IsEncrypted": false,
+	"Values": {
+		"AzureWebJobsStorage": "UseDevelopmentStorage=true",
+		"FUNCTIONS_WORKER_RUNTIME": "python",
+		"AZURE_AD_TENANT_ID": "your-tenant-id",
+		"AZURE_AD_CLIENT_ID": "your-client-id",
+		"AZURE_OPENAI_DEPLOYMENT_NAME": "gpt-4",
+		"AZURE_OPENAI_ENDPOINT": "https://your-resource.openai.azure.com/",
+		"AZURE_OPENAI_API_KEY": "your-openai-key",
+		"AZURE_OPENAI_API_VERSION": "2024-02-15-preview",
+		"COSMOS_ENDPOINT": "", // Optional for local dev
+		"COSMOS_KEY": "" // Optional for local dev
+	},
+	"Host": {
+		"CORS": "http://localhost:3000"
+	}
 }
 ```
 
@@ -216,6 +230,7 @@ cp ui/.env.example ui/.env.local
 ```
 
 Edit `ui/.env.local`:
+
 ```env
 # Microsoft Entra ID Configuration
 REACT_APP_AZURE_AD_CLIENT_ID=your-client-id
@@ -235,6 +250,7 @@ REACT_APP_ENVIRONMENT=development
 If you want to test with local data persistence:
 
 1. **Install Cosmos DB Emulator**
+
    - Windows: [Download here](https://aka.ms/cosmosdb-emulator)
    - macOS/Linux: Use Docker
      ```bash
@@ -248,8 +264,8 @@ If you want to test with local data persistence:
 2. **Update Configuration**
    ```json
    {
-     "COSMOS_ENDPOINT": "https://localhost:8081",
-     "COSMOS_KEY": "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="
+   	"COSMOS_ENDPOINT": "https://localhost:8081",
+   	"COSMOS_KEY": "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="
    }
    ```
 
@@ -300,6 +316,7 @@ npm start
 ### 4. Verify Everything Works
 
 1. **Test Backend Health**
+
    ```bash
    curl http://localhost:7071/api/health
    ```
@@ -333,11 +350,13 @@ python insurance_cli.py \
 ### Making Code Changes
 
 #### Backend Changes
+
 - The Azure Functions runtime supports hot reload
 - Changes to Python files are detected automatically
 - If you add new dependencies, restart the Functions host
 
 #### Frontend Changes
+
 - React development server supports hot module replacement (HMR)
 - Changes are reflected immediately in the browser
 - CSS/Tailwind changes are applied instantly
@@ -359,6 +378,7 @@ git push origin feature/your-feature-name
 ### Code Style
 
 #### Python (Backend)
+
 ```bash
 # Format code with Black
 black api/
@@ -371,6 +391,7 @@ mypy api/
 ```
 
 #### TypeScript/React (Frontend)
+
 ```bash
 cd ui
 
@@ -440,11 +461,13 @@ python demo_conversation.py
 ### Manual Testing
 
 1. **Test Letter Generation**
+
    - Create different letter types
    - Test with various customer information
    - Verify agent conversations work
 
 2. **Test Authentication**
+
    - Sign in/out flow
    - Token refresh
    - Protected route access
@@ -462,38 +485,40 @@ Create `.vscode/launch.json`:
 
 ```json
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Attach to Python Functions",
-      "type": "python",
-      "request": "attach",
-      "port": 9091,
-      "preLaunchTask": "func: host start"
-    },
-    {
-      "name": "Debug React App",
-      "type": "chrome",
-      "request": "launch",
-      "url": "http://localhost:3000",
-      "webRoot": "${workspaceFolder}/ui/src",
-      "sourceMapPathOverrides": {
-        "webpack:///src/*": "${webRoot}/*"
-      }
-    }
-  ]
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Attach to Python Functions",
+			"type": "python",
+			"request": "attach",
+			"port": 9091,
+			"preLaunchTask": "func: host start"
+		},
+		{
+			"name": "Debug React App",
+			"type": "chrome",
+			"request": "launch",
+			"url": "http://localhost:3000",
+			"webRoot": "${workspaceFolder}/ui/src",
+			"sourceMapPathOverrides": {
+				"webpack:///src/*": "${webRoot}/*"
+			}
+		}
+	]
 }
 ```
 
 ### Backend Debugging
 
 1. **Enable Debug Mode**
+
    ```bash
    # Start Functions with debugging
    func start --debug
    ```
 
 2. **Add Breakpoints**
+
    - Set breakpoints in VS Code
    - Use the "Attach to Python Functions" configuration
 
@@ -506,22 +531,25 @@ Create `.vscode/launch.json`:
 ### Frontend Debugging
 
 1. **Browser DevTools**
+
    - Use Chrome/Edge DevTools
    - React Developer Tools extension
    - Network tab for API calls
 
 2. **Console Logging**
+
    ```typescript
-   console.log('Component state:', state);
-   console.debug('API response:', response);
+   console.log('Component state:', state)
+   console.debug('API response:', response)
    ```
 
 3. **React Query DevTools** (if using React Query)
+
    ```typescript
-   import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-   
+   import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+
    // Add to your app
-   <ReactQueryDevtools initialIsOpen={false} />
+   ;<ReactQueryDevtools initialIsOpen={false} />
    ```
 
 ## Troubleshooting
@@ -533,6 +561,7 @@ Create `.vscode/launch.json`:
 **Error**: "Port 7071 is already in use"
 
 **Solution**:
+
 ```bash
 # Find process using port
 # macOS/Linux:
@@ -552,6 +581,7 @@ func start --port 7072
 **Error**: "AADSTS700016: Application not found"
 
 **Solutions**:
+
 - Verify AZURE_AD_CLIENT_ID is correct in both frontend and backend
 - Ensure redirect URI matches exactly (including trailing slashes)
 - Check you're using the correct tenant
@@ -561,6 +591,7 @@ func start --port 7072
 **Error**: "Access blocked by CORS policy"
 
 **Solutions**:
+
 - Ensure `local.settings.json` includes CORS configuration
 - Verify frontend URL in CORS settings
 - Check API URL in frontend `.env.local`
@@ -570,6 +601,7 @@ func start --port 7072
 **Error**: "Invalid API key" or "Resource not found"
 
 **Solutions**:
+
 - Verify API key and endpoint in `local.settings.json`
 - Ensure deployment name matches your Azure OpenAI deployment
 - Check API version is supported
@@ -579,6 +611,7 @@ func start --port 7072
 **Error**: "ModuleNotFoundError" (Python) or "Module not found" (Node.js)
 
 **Solutions**:
+
 ```bash
 # Python
 pip install -r api/requirements.txt
@@ -592,6 +625,7 @@ cd ui && npm install
 **Error**: "No job functions found"
 
 **Solutions**:
+
 - Ensure you're in the `api` directory
 - Check Python version compatibility
 - Verify `function_app.py` exists
@@ -600,15 +634,18 @@ cd ui && npm install
 ### Environment-Specific Issues
 
 #### macOS
+
 - If using M1/M2 Macs, ensure Rosetta 2 is installed
 - Some Python packages may need `--no-binary :all:` flag
 
 #### Windows
+
 - Run terminals as Administrator if permission errors occur
 - Use PowerShell instead of Command Prompt
 - Ensure Windows Defender isn't blocking ports
 
 #### Linux
+
 - May need to install additional system packages:
   ```bash
   sudo apt-get install python3-dev build-essential
@@ -620,37 +657,39 @@ cd ui && npm install
 
 ```json
 {
-  "recommendations": [
-    // Python
-    "ms-python.python",
-    "ms-python.vscode-pylance",
-    "ms-python.black-formatter",
-    
-    // Azure
-    "ms-azuretools.vscode-azurefunctions",
-    "ms-azuretools.vscode-azurestorage",
-    
-    // React/TypeScript
-    "dbaeumer.vscode-eslint",
-    "esbenp.prettier-vscode",
-    "bradlc.vscode-tailwindcss",
-    
-    // General
-    "eamodio.gitlens",
-    "streetsidesoftware.code-spell-checker",
-    "usernamehw.errorlens"
-  ]
+	"recommendations": [
+		// Python
+		"ms-python.python",
+		"ms-python.vscode-pylance",
+		"ms-python.black-formatter",
+
+		// Azure
+		"ms-azuretools.vscode-azurefunctions",
+		"ms-azuretools.vscode-azurestorage",
+
+		// React/TypeScript
+		"dbaeumer.vscode-eslint",
+		"esbenp.prettier-vscode",
+		"bradlc.vscode-tailwindcss",
+
+		// General
+		"eamodio.gitlens",
+		"streetsidesoftware.code-spell-checker",
+		"usernamehw.errorlens"
+	]
 }
 ```
 
 ### API Testing Tools
 
 1. **Postman**
+
    - Import the API collection from `docs/postman_collection.json`
    - Set up environment variables
 
 2. **REST Client (VS Code)**
    Create `api.http`:
+
    ```http
    @baseUrl = http://localhost:7071/api
    @token = <your-jwt-token>
@@ -674,6 +713,7 @@ cd ui && npm install
    ```
 
 3. **cURL Examples**
+
    ```bash
    # Health check
    curl http://localhost:7071/api/health | jq
@@ -688,11 +728,12 @@ cd ui && npm install
 ### Performance Monitoring
 
 1. **Backend Monitoring**
+
    ```python
    # Add to function_app.py for local profiling
    import cProfile
    import pstats
-   
+
    profiler = cProfile.Profile()
    profiler.enable()
    # ... function code ...
@@ -709,11 +750,12 @@ cd ui && npm install
 ### Database Tools
 
 1. **Azure Storage Explorer**
+
    - View Azurite tables and queues
    - Download from [here](https://azure.microsoft.com/features/storage-explorer/)
 
 2. **Cosmos DB Explorer**
-   - For local emulator: https://localhost:8081/_explorer/index.html
+   - For local emulator: https://localhost:8081/\_explorer/index.html
    - For cloud: Use Azure Portal Data Explorer
 
 ## Next Steps
