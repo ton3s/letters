@@ -1,0 +1,16 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "python",
+    "AZURE_OPENAI_DEPLOYMENT_NAME": "your-gpt4-deployment-name",
+    "AZURE_OPENAI_ENDPOINT": "https://your-resource.openai.azure.com/",
+    "AZURE_OPENAI_API_KEY": "your-api-key",
+    "AZURE_OPENAI_API_VERSION": "2024-02-15-preview",
+    "COSMOS_ENDPOINT": "https://your-cosmos.documents.azure.com:443/",
+    "COSMOS_KEY": "your-cosmos-key"
+  },
+  "Host": {
+    "CORS": "http://localhost:3000"
+  }
+}

@@ -22,7 +22,7 @@ pip install --upgrade pip
 
 # Install dependencies
 echo "Installing dependencies..."
-pip install -r requirements.txt
+pip install -r api/requirements.txt
 
 # Install Azure Functions Core Tools if not present
 if ! command -v func &>/dev/null; then
@@ -36,9 +36,18 @@ else
     echo "Azure Functions Core Tools found: $(func --version)"
 fi
 
+# Copy example settings if needed
+if [ ! -f api/local.settings.json ]; then
+    if [ -f api/local.settings.json.example ]; then
+        echo "Copying local.settings.json.example to local.settings.json..."
+        cp api/local.settings.json.example api/local.settings.json
+        echo "Please update api/local.settings.json with your actual Azure credentials"
+    fi
+fi
+
 # Create .env file if it doesn't exist
 if [ ! -f .env ]; then
-    echo "Creating .env file from local.settings.json..."
+    echo "Creating .env file..."
     cat >.env <<EOF
 # Azure OpenAI Configuration
 AZURE_OPENAI_DEPLOYMENT_NAME=gpt-4
@@ -60,13 +69,13 @@ EOF
 fi
 
 # Make CLI executable
-chmod +x cli/insurance_cli.py
+chmod +x cli-tool/insurance_cli.py
 
 echo ""
 echo "Setup complete! Next steps:"
-echo "1. Update .env or local.settings.json with your Azure credentials"
-echo "2. Start the Azure Functions app: func start"
-echo "3. In another terminal, test with CLI: python cli/insurance_cli.py --health-check"
-echo "4. Run interactive CLI: python cli/insurance_cli.py --interactive"
+echo "1. Update api/local.settings.json with your Azure credentials"
+echo "2. Start the Azure Functions app: cd api && func start"
+echo "3. Start the React UI: cd ui && npm install && npm start"
+echo "4. Or use the CLI: cd cli-tool && python insurance_cli.py --interactive"
 echo ""
 echo "For more information, see README.md"
