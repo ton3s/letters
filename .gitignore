@@ -139,6 +139,11 @@ Desktop.ini
 *.iws
 *.ipr
 
+# LLMs
+.claude/
+.claude_*
+RULES.md
+
 # Sublime Text
 *.sublime-project
 *.sublime-workspace
@@ -165,5 +170,4 @@ tags
 .temp/
 .tmp/
 
-.claude/
-.claude_*
+CLAUDE.md
