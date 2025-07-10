@@ -27,8 +27,13 @@ class AzureADAuth:
     def __init__(self):
         self.tenant_id = os.environ.get('AZURE_AD_TENANT_ID', '')
         self.client_id = os.environ.get('AZURE_AD_CLIENT_ID', '')
-        self.issuer = f'https://login.microsoftonline.com/{self.tenant_id}/v2.0'
-        self.jwks_uri = f'{self.issuer}/.well-known/openid-configuration'
+        # Support both v1.0 and v2.0 issuer formats
+        self.issuers = [
+            f'https://login.microsoftonline.com/{self.tenant_id}',
+            f'https://login.microsoftonline.com/{self.tenant_id}/v2.0',
+            f'https://sts.windows.net/{self.tenant_id}/'  # v1.0 tokens use this format
+        ]
+        self.jwks_uri = f'https://login.microsoftonline.com/{self.tenant_id}/v2.0/.well-known/openid-configuration'
         self._jwks_client = None
         self._openid_config = None
         
@@ -75,40 +80,72 @@ class AzureADAuth:
             logger.warning("Azure AD not configured. Skipping authentication.")
             return {"sub": "dev-user", "name": "Development User", "oid": "dev-123"}
         
+        logger.info(f"Validating token with issuers: {self.issuers}")
+        logger.info(f"Expected audiences: {self.client_id}, api://{self.client_id}")
+        
         try:
             # Get the signing key from Azure AD
             if not self.jwks_client:
+                logger.error("JWKS client not initialized")
                 raise AuthError("Unable to fetch JWKS", 500)
             
-            signing_key = self.jwks_client.get_signing_key_from_jwt(token)
+            try:
+                signing_key = self.jwks_client.get_signing_key_from_jwt(token)
+            except Exception as e:
+                logger.error(f"Failed to get signing key: {type(e).__name__}: {str(e)}")
+                raise
             
             # Decode and validate the token
-            payload = jwt.decode(
-                token,
-                signing_key.key,
-                algorithms=["RS256"],
-                audience=self.client_id,
-                issuer=self.issuer,
-                options={
-                    "verify_signature": True,
-                    "verify_exp": True,
-                    "verify_nbf": True,
-                    "verify_iat": True,
-                    "verify_aud": True,
-                    "verify_iss": True,
-                    "require": ["exp", "iat", "nbf", "iss", "aud"]
-                }
-            )
+            # Try with both possible audience values
+            possible_audiences = [
+                self.client_id,
+                f"api://{self.client_id}"
+            ]
+            
+            payload = None
+            last_error = None
+            
+            for audience in possible_audiences:
+                for issuer in self.issuers:
+                    try:
+                        payload = jwt.decode(
+                            token,
+                            signing_key.key,
+                            algorithms=["RS256"],
+                            audience=audience,
+                            issuer=issuer,
+                            options={
+                                "verify_signature": True,
+                                "verify_exp": True,
+                                "verify_nbf": True,
+                                "verify_iat": True,
+                                "verify_aud": True,
+                                "verify_iss": True,
+                                "require": ["exp", "iat", "nbf", "iss", "aud"]
+                            }
+                        )
+                        logger.info(f"Token validated successfully with audience: {audience}, issuer: {issuer}")
+                        break
+                    except (jwt.InvalidAudienceError, jwt.InvalidIssuerError) as e:
+                        last_error = e
+                        continue
+                if payload:
+                    break
+            
+            if not payload:
+                raise last_error or jwt.InvalidTokenError("Unable to validate token")
             
             return payload
             
         except jwt.ExpiredSignatureError:
+            logger.error("Token has expired")
             raise AuthError("Token has expired", 401)
         except jwt.InvalidTokenError as e:
+            logger.error(f"Invalid token error: {str(e)}")
             raise AuthError(f"Invalid token: {str(e)}", 401)
         except Exception as e:
-            logger.error(f"Token validation error: {e}")
-            raise AuthError("Token validation failed", 401)
+            logger.error(f"Token validation error: {type(e).__name__}: {str(e)}")
+            raise AuthError(f"Token validation failed: {str(e)}", 401)
     
     def get_token_from_request(self, req: func.HttpRequest) -> Optional[str]:
         """
@@ -148,12 +185,15 @@ def require_auth(f):
             token = auth.get_token_from_request(req)
             
             if not token:
+                logger.warning("No authentication token provided in request")
                 return func.HttpResponse(
                     json.dumps({"error": "No authentication token provided"}),
                     status_code=401,
                     mimetype="application/json",
                     headers={"WWW-Authenticate": "Bearer"}
                 )
+            
+            logger.info(f"Token received, length: {len(token)}")
             
             # Validate token
             user_info = auth.validate_token(token)
@@ -162,7 +202,8 @@ def require_auth(f):
             req.user = user_info
             
             # Call the original function
-            if f.__name__.startswith('async_'):
+            import asyncio
+            if asyncio.iscoroutinefunction(f):
                 return await f(req, *args, **kwargs)
             else:
                 return f(req, *args, **kwargs)

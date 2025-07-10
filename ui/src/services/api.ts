@@ -79,17 +79,6 @@ export class ApiService {
     });
   }
 
-  // Get letter history (placeholder for future implementation)
-  static async getLetterHistory(userId: string): Promise<LetterResponse[]> {
-    // TODO: Implement when backend supports user-specific history
-    return apiRequest<LetterResponse[]>(`/letters?userId=${userId}`);
-  }
-
-  // Get analytics data (placeholder for future implementation)
-  static async getAnalytics(userId: string): Promise<any> {
-    // TODO: Implement when backend supports analytics
-    return apiRequest<any>(`/analytics?userId=${userId}`);
-  }
 }
 
 // Export individual functions for convenience
@@ -98,6 +87,4 @@ export const {
   generateLetter,
   suggestLetterType,
   validateLetter,
-  getLetterHistory,
-  getAnalytics,
 } = ApiService;

@@ -8,6 +8,7 @@ import { AgentConversationModal } from '../components/Letters';
 export const LetterHistory: React.FC = () => {
   const navigate = useNavigate();
   const [letters, setLetters] = useState<StoredLetter[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; letterId: string | null }>({
     isOpen: false,
     letterId: null,
@@ -22,8 +23,15 @@ export const LetterHistory: React.FC = () => {
   }, []);
 
   const loadLetters = () => {
-    const history = LetterHistoryService.getAll();
-    setLetters(history);
+    setIsLoading(true);
+    try {
+      const history = LetterHistoryService.getAll();
+      setLetters(history);
+    } catch (error) {
+      console.error('Error loading letters:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleView = (letter: StoredLetter) => {
@@ -40,8 +48,12 @@ export const LetterHistory: React.FC = () => {
 
   const confirmDelete = () => {
     if (deleteConfirm.letterId) {
-      LetterHistoryService.delete(deleteConfirm.letterId);
-      loadLetters();
+      try {
+        LetterHistoryService.delete(deleteConfirm.letterId);
+        loadLetters();
+      } catch (error) {
+        console.error('Error deleting letter:', error);
+      }
     }
     setDeleteConfirm({ isOpen: false, letterId: null });
   };

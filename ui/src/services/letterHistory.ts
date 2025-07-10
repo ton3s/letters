@@ -1,13 +1,14 @@
 import { LetterResponse } from '../types';
 
-const STORAGE_KEY = 'letter_history';
-
 export interface StoredLetter extends LetterResponse {
   id: string;
   savedAt: string;
   customerName: string;
   letterType: string;
 }
+
+const STORAGE_KEY = 'letter_history';
+const MAX_HISTORY_SIZE = 50;
 
 export class LetterHistoryService {
   // Get all letters from localStorage
@@ -25,6 +26,7 @@ export class LetterHistoryService {
   static save(letter: LetterResponse, customerName: string, letterType: string): void {
     try {
       const history = this.getAll();
+      
       const storedLetter: StoredLetter = {
         ...letter,
         id: letter.document_id || `letter_${Date.now()}`,
@@ -33,12 +35,12 @@ export class LetterHistoryService {
         letterType,
       };
       
-      // Add to beginning of array (most recent first)
+      // Add to beginning of array
       history.unshift(storedLetter);
       
-      // Keep only last 50 letters
-      if (history.length > 50) {
-        history.splice(50);
+      // Limit history size
+      if (history.length > MAX_HISTORY_SIZE) {
+        history.splice(MAX_HISTORY_SIZE);
       }
       
       localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
@@ -59,19 +61,18 @@ export class LetterHistoryService {
       const history = this.getAll();
       const index = history.findIndex(letter => letter.id === id);
       
-      if (index === -1) {
-        return false; // Letter not found
+      if (index !== -1) {
+        history[index] = {
+          ...history[index],
+          ...updates,
+          savedAt: new Date().toISOString(),
+        };
+        
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+        return true;
       }
       
-      // Update the letter with new data
-      history[index] = {
-        ...history[index],
-        ...updates,
-        savedAt: new Date().toISOString(), // Update the save timestamp
-      };
-      
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
-      return true;
+      return false;
     } catch (error) {
       console.error('Error updating letter:', error);
       return false;
@@ -84,12 +85,12 @@ export class LetterHistoryService {
       const history = this.getAll();
       const filtered = history.filter(letter => letter.id !== id);
       
-      if (filtered.length === history.length) {
-        return false; // Letter not found
+      if (filtered.length !== history.length) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+        return true;
       }
       
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-      return true;
+      return false;
     } catch (error) {
       console.error('Error deleting letter:', error);
       return false;

@@ -17,7 +17,7 @@ from services.agent_system import (
 )
 from services.cosmos_service import CosmosService
 from services.models import LetterRequest, CustomerInfo, LetterType
-from middleware import require_auth, get_user_id, get_user_email, get_user_name
+from middleware import require_auth
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -28,6 +28,44 @@ app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 
 # Initialize Cosmos DB service
 cosmos_service = CosmosService()
+
+@app.route(route="debug-token", methods=["POST"])
+def debug_token(req: func.HttpRequest) -> func.HttpResponse:
+    """Debug endpoint to decode token without validation."""
+    try:
+        auth_header = req.headers.get('Authorization', '')
+        if not auth_header.startswith('Bearer '):
+            return func.HttpResponse(
+                json.dumps({"error": "No Bearer token provided"}),
+                status_code=400,
+                mimetype="application/json"
+            )
+        
+        token = auth_header[7:]
+        
+        # Decode without verification to see the contents
+        import jwt
+        decoded = jwt.decode(token, options={"verify_signature": False})
+        
+        return func.HttpResponse(
+            json.dumps({
+                "issuer": decoded.get("iss"),
+                "audience": decoded.get("aud"),
+                "subject": decoded.get("sub"),
+                "expiry": decoded.get("exp"),
+                "tenant_id": decoded.get("tid"),
+                "app_id": decoded.get("appid"),
+                "token_preview": token[:50] + "..."
+            }, indent=2),
+            status_code=200,
+            mimetype="application/json"
+        )
+    except Exception as e:
+        return func.HttpResponse(
+            json.dumps({"error": str(e)}),
+            status_code=500,
+            mimetype="application/json"
+        )
 
 @app.route(route="health")
 def health_check(req: func.HttpRequest) -> func.HttpResponse:
@@ -43,7 +81,13 @@ def health_check(req: func.HttpRequest) -> func.HttpResponse:
                 "/api/draft-letter",
                 "/api/suggest-letter-type",
                 "/api/validate-letter"
-            ]
+            ],
+            "auth_config": {
+                "tenant_id_configured": bool(os.environ.get('AZURE_AD_TENANT_ID')),
+                "client_id_configured": bool(os.environ.get('AZURE_AD_CLIENT_ID')),
+                "tenant_id": os.environ.get('AZURE_AD_TENANT_ID', 'not set')[:8] + "..." if os.environ.get('AZURE_AD_TENANT_ID') else 'not set',
+                "client_id": os.environ.get('AZURE_AD_CLIENT_ID', 'not set')[:8] + "..." if os.environ.get('AZURE_AD_CLIENT_ID') else 'not set'
+            }
         }
         
         # Check Cosmos DB connection
@@ -72,10 +116,6 @@ def health_check(req: func.HttpRequest) -> func.HttpResponse:
 async def draft_letter(req: func.HttpRequest) -> func.HttpResponse:
     """Generate an insurance letter using multi-agent review workflow."""
     try:
-        # Get user info from authenticated request
-        user_id = get_user_id(req)
-        user_email = get_user_email(req)
-        user_name = get_user_name(req)
         # Parse request body
         req_body = req.get_json()
         
@@ -133,9 +173,6 @@ async def draft_letter(req: func.HttpRequest) -> func.HttpResponse:
             letter_doc = {
                 "id": f"letter_{datetime.now().timestamp()}",
                 "type": "letter",
-                "user_id": user_id,  # Add user ID for user-specific queries
-                "user_email": user_email,
-                "user_name": user_name,
                 "customer_name": customer_info.get("name"),
                 "policy_number": customer_info.get("policy_number"),
                 "letter_type": letter_type,

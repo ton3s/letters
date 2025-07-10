@@ -46,11 +46,6 @@ export class CompanyProfileService {
     this.save(updated);
   }
 
-  // Clear the company profile
-  static clear(): void {
-    localStorage.removeItem(STORAGE_KEY);
-  }
-
   // Get default profile for new users
   static getDefault(): CompanyProfile {
     return {
