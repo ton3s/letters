@@ -5,6 +5,7 @@ import { LetterType, LetterRequest } from '../types';
 import { LoadingModal, Tooltip } from '../components/Common';
 import { generateLetter } from '../services/api';
 import { LetterHistoryService } from '../services/letterHistory';
+import { CompanyProfileService } from '../services/companyProfile';
 import { useApi } from '../hooks/useApi';
 import {
   DocumentTextIcon,
@@ -44,15 +45,21 @@ export const GenerateLetter: React.FC = () => {
     
     const response = await executeGenerateLetter(requestData);
     if (response) {
+      // Apply company profile to the generated letter
+      const updatedResponse = {
+        ...response,
+        letter_content: CompanyProfileService.applyToLetter(response.letter_content)
+      };
+      
       // Save to history
       LetterHistoryService.save(
-        response, 
+        updatedResponse, 
         data.customer_info.name, 
         data.letter_type
       );
       
       // Navigate to the letter view page after successful generation
-      navigate('/letter/view', { state: { letter: response } });
+      navigate('/letter/view', { state: { letter: updatedResponse } });
     }
   };
 

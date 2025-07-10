@@ -71,18 +71,30 @@ export class CompanyProfileService {
   // Apply company profile to letter content
   static applyToLetter(letterContent: string, profile?: CompanyProfile): string {
     const companyProfile = profile || this.get();
-    if (!companyProfile) return letterContent;
-
+    
     let updatedContent = letterContent;
+    
+    // Replace [Date] with current date
+    const currentDate = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    updatedContent = updatedContent.replace(/\[Date\]/g, currentDate);
+    
+    // Only proceed with company replacements if we have a profile
+    if (!companyProfile) return updatedContent;
 
-    // Replace common placeholders
+    // Replace common placeholders - include variations
     const replacements: Record<string, string> = {
       '[Insurance Company Letterhead]': companyProfile.letterheadText || companyProfile.companyName,
+      '[Insurance Company Name]': companyProfile.companyName,
       '[Company Name]': companyProfile.companyName,
       '[Company Address]': companyProfile.companyAddress,
       '[Company Phone]': companyProfile.companyPhone,
       '[Company Email]': companyProfile.companyEmail,
       '[Company Website]': companyProfile.companyWebsite,
+      '[website URL]': companyProfile.companyWebsite,
       '[Agent Name]': companyProfile.defaultAgentName || '[Agent Name]',
       '[Agent Title]': companyProfile.defaultAgentTitle || '[Agent Title]',
       '[Agent Email]': companyProfile.defaultAgentEmail || '[Agent Email]',
