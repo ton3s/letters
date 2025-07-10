@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { CompanyProfile, CompanyProfileService } from '../services/companyProfile';
 import { 
   BuildingOfficeIcon, 
   CheckCircleIcon,
-  ArrowLeftIcon,
 } from '@heroicons/react/24/outline';
 
 export const CompanySettings: React.FC = () => {
-  const navigate = useNavigate();
   const [profile, setProfile] = useState<CompanyProfile>(CompanyProfileService.getDefault());
   const [saved, setSaved] = useState(false);
 
@@ -39,14 +36,6 @@ export const CompanySettings: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-6">
-        <button
-          onClick={() => navigate(-1)}
-          className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 mb-4"
-        >
-          <ArrowLeftIcon className="h-4 w-4 mr-1" />
-          Back
-        </button>
-        
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center">
           <BuildingOfficeIcon className="h-8 w-8 mr-3" />
           Company Settings
@@ -202,6 +191,43 @@ export const CompanySettings: React.FC = () => {
                   type="tel"
                   value={profile.defaultAgentPhone || ''}
                   onChange={(e) => handleChange('defaultAgentPhone', e.target.value)}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Claims Manager Information */}
+        <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Claims Manager Information
+          </h2>
+          
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Claims Manager Name */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Claims Manager Name
+                </label>
+                <input
+                  type="text"
+                  value={profile.claimsManagerName || ''}
+                  onChange={(e) => handleChange('claimsManagerName', e.target.value)}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                />
+              </div>
+
+              {/* Claims Manager Title */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Claims Manager Title
+                </label>
+                <input
+                  type="text"
+                  value={profile.claimsManagerTitle || ''}
+                  onChange={(e) => handleChange('claimsManagerTitle', e.target.value)}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                 />
               </div>

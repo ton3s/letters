@@ -9,6 +9,8 @@ export interface CompanyProfile {
   defaultAgentTitle?: string;
   defaultAgentEmail?: string;
   defaultAgentPhone?: string;
+  claimsManagerName?: string;
+  claimsManagerTitle?: string;
   letterheadText?: string;
   footerText?: string;
   disclaimerText?: string;
@@ -62,6 +64,8 @@ export class CompanyProfileService {
       defaultAgentTitle: 'Insurance Agent',
       defaultAgentEmail: '',
       defaultAgentPhone: '',
+      claimsManagerName: '',
+      claimsManagerTitle: 'Claims Manager',
       letterheadText: '[Insurance Company Letterhead]',
       footerText: '',
       disclaimerText: 'This letter is for informational purposes only and does not constitute a contract or agreement.',
@@ -69,7 +73,7 @@ export class CompanyProfileService {
   }
 
   // Apply company profile to letter content
-  static applyToLetter(letterContent: string, profile?: CompanyProfile): string {
+  static applyToLetter(letterContent: string, profile?: CompanyProfile, overrides?: { agentName?: string }): string {
     const companyProfile = profile || this.get();
     
     let updatedContent = letterContent;
@@ -85,20 +89,33 @@ export class CompanyProfileService {
     // Only proceed with company replacements if we have a profile
     if (!companyProfile) return updatedContent;
 
+    // Use agent name from overrides if provided, otherwise use default
+    const agentName = overrides?.agentName || companyProfile.defaultAgentName || '[Agent Name]';
+
     // Replace common placeholders - include variations
     const replacements: Record<string, string> = {
       '[Insurance Company Letterhead]': companyProfile.letterheadText || companyProfile.companyName,
       '[Insurance Company Name]': companyProfile.companyName,
+      '[Your Insurance Company Name]': companyProfile.companyName,
       '[Company Name]': companyProfile.companyName,
       '[Company Address]': companyProfile.companyAddress,
       '[Company Phone]': companyProfile.companyPhone,
+      '[Phone Number]': companyProfile.companyPhone,
       '[Company Email]': companyProfile.companyEmail,
+      '[Email Address]': companyProfile.companyEmail,
       '[Company Website]': companyProfile.companyWebsite,
       '[website URL]': companyProfile.companyWebsite,
-      '[Agent Name]': companyProfile.defaultAgentName || '[Agent Name]',
+      '[Agent Name]': agentName,
+      '[Your Name]': agentName,
       '[Agent Title]': companyProfile.defaultAgentTitle || '[Agent Title]',
+      '[Your Title]': companyProfile.defaultAgentTitle || '[Your Title]',
+      '[Your Job Title]': companyProfile.defaultAgentTitle || '[Your Job Title]',
       '[Agent Email]': companyProfile.defaultAgentEmail || '[Agent Email]',
       '[Agent Phone]': companyProfile.defaultAgentPhone || '[Agent Phone]',
+      '[Name of Claims Manager]': companyProfile.claimsManagerName || '[Name of Claims Manager]',
+      '[Claims Manager]': companyProfile.claimsManagerName || '[Claims Manager]',
+      '[Claims Manager Title]': companyProfile.claimsManagerTitle || '[Claims Manager Title]',
+      '[Company Contact Information]': `${companyProfile.companyAddress}\nPhone: ${companyProfile.companyPhone}\nEmail: ${companyProfile.companyEmail}`,
     };
 
     // Replace all placeholders
@@ -107,6 +124,11 @@ export class CompanyProfileService {
         updatedContent = updatedContent.replace(new RegExp(escapeRegExp(placeholder), 'g'), value);
       }
     });
+
+    // Also replace "State Farm" with the actual company name if it appears
+    if (companyProfile.companyName && companyProfile.companyName !== 'Insurance Company') {
+      updatedContent = updatedContent.replace(/State Farm/g, companyProfile.companyName);
+    }
 
     return updatedContent;
   }

@@ -45,10 +45,14 @@ export const GenerateLetter: React.FC = () => {
     
     const response = await executeGenerateLetter(requestData);
     if (response) {
-      // Apply company profile to the generated letter
+      // Apply company profile to the generated letter, with agent name from form overriding default
       const updatedResponse = {
         ...response,
-        letter_content: CompanyProfileService.applyToLetter(response.letter_content)
+        letter_content: CompanyProfileService.applyToLetter(
+          response.letter_content, 
+          undefined,
+          { agentName: data.customer_info.agent_name }
+        )
       };
       
       // Save to history
