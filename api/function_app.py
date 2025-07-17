@@ -17,7 +17,8 @@ from services.agent_system import (
 )
 from services.cosmos_service import CosmosService
 from services.models import LetterRequest, CustomerInfo, LetterType
-from middleware import require_auth
+# Authentication disabled - remove this comment and uncomment the line below to re-enable
+# from middleware import require_auth
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -112,7 +113,6 @@ def health_check(req: func.HttpRequest) -> func.HttpResponse:
         )
 
 @app.route(route="draft-letter", methods=["POST"])
-@require_auth
 async def draft_letter(req: func.HttpRequest) -> func.HttpResponse:
     """Generate an insurance letter using multi-agent review workflow."""
     try:
@@ -205,7 +205,6 @@ async def draft_letter(req: func.HttpRequest) -> func.HttpResponse:
         )
 
 @app.route(route="suggest-letter-type", methods=["POST"])
-@require_auth
 async def suggest_letter_type_endpoint(req: func.HttpRequest) -> func.HttpResponse:
     """AI-powered letter type suggestion based on user description."""
     try:
@@ -239,7 +238,6 @@ async def suggest_letter_type_endpoint(req: func.HttpRequest) -> func.HttpRespon
         )
 
 @app.route(route="validate-letter", methods=["POST"])
-@require_auth
 async def validate_letter_endpoint(req: func.HttpRequest) -> func.HttpResponse:
     """Validate an existing letter for compliance."""
     try:

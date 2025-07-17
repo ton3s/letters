@@ -1,0 +1,36 @@
+# Azure Subscription
+azure_subscription_id = "your-azure-subscription-id"
+
+# Project Configuration
+project_name = "insuranceletters"
+environment  = "dev"
+location     = "eastus"
+
+# Azure OpenAI Configuration
+openai_deployment_name = "gpt-4"
+openai_endpoint        = "https://your-openai-instance.openai.azure.com/"
+openai_api_key         = "your-openai-api-key"
+openai_api_version     = "2024-02-15-preview"
+
+# Azure AD Configuration
+azure_ad_tenant_id = "your-tenant-id"
+azure_ad_client_id = "your-app-client-id"
+
+# API Management Configuration
+deploy_apim          = true
+apim_publisher_email = "admin@yourcompany.com"
+apim_publisher_name  = "Your Company Name"
+
+# CORS Configuration (optional)
+additional_cors_origins = [
+  "http://localhost:3000",
+  "https://your-custom-domain.com"
+]
+
+# Tags (optional)
+tags = {
+  project     = "insurance-letters"
+  environment = "dev"
+  managed_by  = "terraform"
+  owner       = "your-team"
+}
